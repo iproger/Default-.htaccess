@@ -2,10 +2,6 @@ AddDefaultCharset UTF-8
 Options All -ExecCGI -Indexes -Includes +FollowSymLinks
 ServerSignature Off
 
-<IfModule mod_autoindex.c>
-    IndexIgnore */*
-</IfModule>
-
 <FilesMatch ".(htaccess|htpasswd|ini|phps|fla|psd|log|sh)$">
     Order Allow,Deny
     Deny from all
