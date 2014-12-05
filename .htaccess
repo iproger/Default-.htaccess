@@ -1,39 +1,70 @@
+AddDefaultCharset UTF-8
+DefaultLanguage ru-RU
+Options All -ExecCGI -Indexes -Includes +FollowSymLinks
+
 <IfModule mod_autoindex.c>
-    Options -Indexes +FollowSymlinks
     IndexIgnore */*
-    AddDefaultCharset UTF-8
 </IfModule>
 
-<IfModule mod_expires.c>
-    Header append Cache-Control "public"
-    FileETag MTime Size
-    ExpiresActive On
-    ExpiresDefault "access plus 0 minutes"
-    ExpiresByType text/css "access plus 1 years"
-    ExpiresByType text/javascript "access plus 1 years"
-    ExpiresByType application/x-shockwave-flash "access plus 1 years"
-    ExpiresByType image/ico "access plus 1 years"
-    ExpiresByType image/gif "access plus 1 years"
-    ExpiresByType image/jpg "access plus 1 years"
-    ExpiresByType image/jpeg "access plus 1 years"
-    ExpiresByType image/bmp "access plus 1 years"
-    ExpiresByType image/png "access plus 1 years"
+<FilesMatch ".(htaccess|htpasswd|ini|phps|fla|psd|log|sh)$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+<ifModule mod_headers.c>
+    Header unset ETag
+    Header unset Last-Modified
+    
+    #кэшировать html и htm файлы на один день
+    <FilesMatch "\.(html|htm)$">
+        Header set Cache-Control "max-age=43200"
+    </FilesMatch>
+    #кэшировать css, javascript и текстовые файлы на одну неделю
+    <FilesMatch "\.(js|css|txt)$">
+        Header set Cache-Control "max-age=604800"
+    </FilesMatch>
+    #кэшировать флэш и изображения на месяц
+    <FilesMatch "\.(flv|swf|ico|gif|jpg|jpeg|png)$">
+        Header set Cache-Control "max-age=2592000"
+    </FilesMatch>
+    #отключить кэширование
+    <FilesMatch "\.(pl|php|cgi|spl|scgi|fcgi)$">
+        Header unset Cache-Control
+    </FilesMatch>
 </IfModule>
+
+<ifModule mod_expires.c>
+    ExpiresActive On
+    #по умолчанию кеш в 5 секунд
+    ExpiresDefault "access plus 5 seconds"
+    #кэшировать флэш и изображения на месяц
+    ExpiresByType image/x-icon "access plus 2592000 seconds"
+    ExpiresByType image/jpeg "access plus 2592000 seconds"
+    ExpiresByType image/png "access plus 2592000 seconds"
+    ExpiresByType image/gif "access plus 2592000 seconds"
+    ExpiresByType application/x-shockwave-flash "access plus 2592000 seconds"
+    #кэшировать css, javascript и текстовые файлы на одну неделю
+    ExpiresByType text/css "access plus 604800 seconds"
+    ExpiresByType text/javascript "access plus 604800 seconds"
+    ExpiresByType application/javascript "access plus 604800 seconds"
+    ExpiresByType application/x-javascript "access plus 604800 seconds"
+    #кэшировать html и htm файлы на один день
+    ExpiresByType text/html "access plus 43200 seconds"
+    #кэшировать xml файлы на десять минут
+    ExpiresByType application/xhtml+xml "access plus 600 seconds"
+</ifModule>
 
 <IfModule mod_deflate.c>
     AddOutputFilterByType DEFLATE text/plain text/html text/xml text/css application/xml application/xhtml+xml application/rss+xml application/javascript application/x-javascript application/x-font-ttf application/vnd.ms-fontobject font/opentype font/ttf font/eot font/otf
 </IfModule>
 
-<ifModule mod_headers.c>
-    <FilesMatch ".(flv|gif|jpg|jpeg|png|ico|swf|js|css|pdf|woff)$">
-        Header set Cache-Control "max-age=2592000, public"
-    </FilesMatch>
-</ifModule>
-
 <IfModule mod_rewrite.c>
     RewriteEngine On
     RewriteBase /
+    
+    RewriteCond %{HTTP_HOST} ^www\.site\.com$ [NC]
+    RewriteRule ^(.*)$ http://site.com/$1 [R=301,L]
+    
     RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteCond %{REQUEST_FILENAME} !-d
     RewriteRule ^([^/].*)?$ /app/frontend/web/$1 [L]
 </IfModule>
