@@ -1,2 +1,2 @@
-Default-.htaccess
+Sample of .htaccess
 =================
